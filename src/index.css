@@ -1,0 +1,11 @@
+/* ============================================================
+   GLOBAL STYLESHEET BARREL — every UI area has its own file
+   ============================================================ */
+@import './styles/base.css';
+@import './styles/stage.css';
+@import './styles/appbar.css';
+@import './styles/sections.css';
+@import './styles/bento.css';
+@import './styles/catalog.css';
+@import './styles/sheet.css';
+@import './styles/toast.css';
