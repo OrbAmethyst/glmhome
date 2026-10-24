@@ -3,9 +3,11 @@ import type { CSSProperties, MouseEvent as ReactMouseEvent, PointerEvent as Reac
 import { Icon } from './Icon';
 import { BentoCard } from './BentoCard';
 import type { BentoVariant } from './BentoCard';
+import { RoomFilterRail } from './RoomFilterRail';
+import { TelemetryStrip } from './TelemetryStrip';
 import { chunk } from '../config';
 import { useSmartHome } from '../store/SmartHomeStore';
-import type { Device } from '../types';
+import type { Device, RoomFilter } from '../types';
 
 /* ============================================================
    SECTION 1 — ACTIVE GLANCE (paged glass bento + dot/pill pager)
@@ -22,10 +24,11 @@ interface ActiveSectionProps {
   resetToken: number;
   onToggle: (id: string) => void;
   onDelete: (device: Device, index: number) => void;
+  onOpenDevice: (device: Device) => void;
 }
 
-export function ActiveSection({ query, filtered, freshId, removingId, resetToken, onToggle, onDelete }: ActiveSectionProps) {
-  const { devices } = useSmartHome();
+export function ActiveSection({ query, filtered, freshId, removingId, resetToken, onToggle, onDelete, onOpenDevice }: ActiveSectionProps) {
+  const { devices, selectedRoom, setSelectedRoom } = useSmartHome();
   const pages = useMemo(() => chunk(filtered, 4), [filtered]);
   const [page, setPage] = useState(0);
   const [pageW, setPageW] = useState<number | null>(null);
@@ -33,8 +36,20 @@ export function ActiveSection({ query, filtered, freshId, removingId, resetToken
   const drag = useRef({ active: false, startX: 0, startLeft: 0, moved: false });
 
   const total = devices.length;
-  const onCount = devices.filter((d) => d.power).length;
+  const onCount = devices.filter((d) => d.power && d.isOnline).length;
   const searching = query.trim().length > 0;
+
+  /* --- 200ms spring cross-fade when the room filter changes --- */
+  const [blending, setBlending] = useState(false);
+  const prevRoom = useRef(selectedRoom);
+  useEffect(() => {
+    if (prevRoom.current === selectedRoom) return;
+    prevRoom.current = selectedRoom;
+    setBlending(false);
+    const raf = requestAnimationFrame(() => setBlending(true));
+    const t = window.setTimeout(() => setBlending(false), 280);
+    return () => { cancelAnimationFrame(raf); window.clearTimeout(t); };
+  }, [selectedRoom]);
 
   /* --- pixel-lock the page width to the scroller's client width --- */
   useEffect(() => {
@@ -121,7 +136,11 @@ export function ActiveSection({ query, filtered, freshId, removingId, resetToken
         </div>
       ) : (
         <>
-          <div className="bento-scroll" ref={scRef} style={pageStyle}
+          {!searching && (
+            <RoomFilterRail devices={devices} onSelectRoom={(room: RoomFilter) => setSelectedRoom(room)} />
+          )}
+
+          <div className={`bento-scroll${blending ? ' blend' : ''}`} ref={scRef} style={pageStyle}
                onScroll={onScroll}
                onPointerDown={onPointerDown} onPointerMove={onPointerMove}
                onPointerUp={onPointerUp} onPointerLeave={onPointerUp}
@@ -135,7 +154,8 @@ export function ActiveSection({ query, filtered, freshId, removingId, resetToken
                   return (
                     <BentoCard key={d.id} device={d} variant={variant} index={pi * 4 + i}
                       fresh={d.id === freshId} removing={d.id === removingId}
-                      onToggle={() => onToggle(d.id)} onDelete={() => onDelete(d, pi * 4 + i)} />
+                      onToggle={() => onToggle(d.id)} onDelete={() => onDelete(d, pi * 4 + i)}
+                      onOpen={() => onOpenDevice(d)} />
                   );
                 })}
               </div>
@@ -152,6 +172,8 @@ export function ActiveSection({ query, filtered, freshId, removingId, resetToken
               ))}
             </div>
           )}
+
+          <TelemetryStrip devices={devices} />
 
           {!searching && onCount === 0 && (
             <div className="rest-note">

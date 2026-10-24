@@ -1,0 +1,32 @@
+/* ============================================================
+   TELEMETRY STRIP — slim frosted metrics bar
+   ============================================================ */
+.telemetry {
+  display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: center; gap: 10px;
+  margin: 12px 18px 0;
+  padding: 10px 13px;
+  background: rgba(255, 255, 255, 0.48);
+  backdrop-filter: blur(16px) saturate(170%);
+  -webkit-backdrop-filter: blur(16px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  box-shadow: var(--glass-shadow), var(--glass-sheen);
+}
+
+.tele-cell { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.tele-sep { width: 1px; align-self: stretch; background: linear-gradient(180deg, transparent, rgba(25, 53, 70, 0.14), transparent); }
+
+.tele-ic {
+  width: 26px; height: 26px; flex: none; display: grid; place-items: center; border-radius: 9px;
+  background: linear-gradient(135deg, rgba(13, 184, 211, 0.18), rgba(27, 127, 220, 0.18));
+  border: 1px solid rgba(13, 184, 211, 0.30); color: #0A8FB8;
+}
+.tele-icon .ms { font-size: 14px; }
+
+.tele-txt { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.tele-val {
+  font-size: 13px; font-weight: 700; letter-spacing: -0.01em; color: #0A7FA0;
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.tele-unit { font-size: 9.5px; font-weight: 600; color: #6E93A4; margin-left: 2px; }
+.tele-label { font-size: 8.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }

@@ -5,9 +5,9 @@ A mobile-first Smart Home web application built with **React 18 + TypeScript + V
 Glassmorphism look and feel on the **Arctic Depths** palette, designed on a strict
 **375px mobile contract** (responsive on wider screens, designed for 375px).
 
-> Current state: **Checkpoint 2** — glassmorphism, pixel-locked bento carousel,
-> pairing bottom sheet, undo toast. Checkpoint 1 (flat theme, 430px frame) is the
-> previous design state and is intentionally not part of this repo.
+> Current state: **Fold 2** — glassmorphism bento, collapsing header, ambient telemetry
+> strip, sticky spatial room rail, deep device-control sheets, localStorage persistence.
+> (Checkpoint 1 flat-theme and Checkpoint 2 pairing flow are previous design states.)
 
 ---
 
@@ -44,16 +44,21 @@ my-sweet-home/
     ├── index.css               # full design system (tokens, glass, bento, sheet, tiers)
     ├── types.ts                # Device / ApplianceCategory / ROOMS / CATEGORY_META
     ├── store/
-    │   └── SmartHomeStore.tsx  # Context store — devices, toggle, add, delete, restore
+    │   └── SmartHomeStore.tsx  # Context store — devices (persisted), toggle, add, delete,
+    │                           #   restore, value/online/rename updates, room filter
     └── components/
         ├── AppHeader.tsx       # home selector + profile avatar on top, glass search below
         ├── StatusBar.tsx       # fake status bar (device frame tier only)
         ├── Icon.tsx            # Material Symbols Rounded @ wght 300 (FILL 1 when powered)
         ├── ToggleSwitch.tsx    # gradient power switch
-        ├── BentoCard.tsx       # hero / cell / wide variants
+        ├── BentoCard.tsx       # hero / cell / wide variants + tap-to-open controls
         ├── ActiveSection.tsx   # bento carousel, ResizeObserver width lock, pager
+        ├── RoomFilterRail.tsx  # sticky spatial filter chips with active counts
+        ├── TelemetryStrip.tsx  # simulated live home metrics (watts / temp / ratio)
+        ├── AnimatedNumber.tsx  # eased rAF number roll for telemetry
         ├── CatalogSection.tsx  # 10 appliance types (labels at regular weight)
         ├── SetupSheet.tsx      # bottom-sheet pairing flow (300ms simulated connect)
+        ├── DeviceControlSheet.tsx  # per-category deep controls (drag-to-dismiss sheet)
         └── Toast.tsx           # dark-glass toast with Undo (4.6s life)
 ```
 
@@ -95,12 +100,26 @@ switch the FILL axis to 1.
 
 ---
 
-## Behavior contract (Checkpoint 2)
+## Behavior contract (Fold 2)
 
 - **Bento**: 4 devices per page — first card is the hero (full-width, tinted
   glass when powered), last card is wide; pages snap horizontally; pager shows
   dots that morph into a gradient pill for the active page; mouse drag-to-scroll
   with click suppression.
+- **Spatial room rail**: sticky frosted chip rail under the app bar (follows
+  `--appbar-h` measured via ResizeObserver). Rooms with active (powered online)
+  devices first. Selecting a chip applies a 200ms spring cross-fade to the cards
+  and live-filters the bento + catalog scope; the pairing sheet opens with that
+  room preselected.
+- **Telemetry strip**: slim frosted bar under the bento — Active Load (W),
+  Indoor Temp (°C) and Devices Running, all eased-rolled on change (rAF tween,
+  respects `prefers-reduced-motion`).
+- **Device control sheet**: tapping a card (outside its buttons) opens the
+  drag-to-dismiss controls sheet — brightness slider with scaling ambient glow
+  (lights), ±0.5° stepper dial with category ranges (climate), or Off/Low/Med/High
+  segmented selector (fans, TV, plug, cleaner). Power row + rename + online
+  simulation in the footer. When a device is offline, controls sit under a
+  desaturating overlay with an "unreachable" banner, and the card shadow fades.
 - **Pairing**: tap a catalog tile → bottom sheet (drag-to-dismiss at 100px) →
   name auto-prefills from the selected room until edited → Connect runs a
   300ms simulated connect → sheet closes, query clears, bento snaps to page 0,
@@ -109,6 +128,8 @@ switch the FILL axis to 1.
   that restores the device at its original index.
 - **Search**: live-filters both the bento and the catalog, with dedicated
   empty/no-match states.
+- **Persistence**: devices hydrate from `localStorage['msh_devices']` and are
+  written on every mutation; malformed stored data falls back to the seeds.
 
 ### Scope rules
 

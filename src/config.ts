@@ -3,7 +3,7 @@ import type { ApplianceCategory } from './types';
 /* ============================================================
    STATIC CONFIG
    ============================================================ */
-export const ROOMS: string[] = ['Living Room', 'Bedroom', 'Kitchen', 'Balcony', 'Hall'];
+export const ROOMS: string[] = ['Living Room', 'Bedroom', 'Kitchen', 'Office', 'Balcony'];
 
 export const CATEGORY_META: Record<ApplianceCategory, { label: string; icon: string; value: number; unit: string }> = {
   lights:      { label: 'Lights',      icon: 'lightbulb',           value: 80, unit: '%'  },
@@ -21,9 +21,44 @@ export const CATEGORY_META: Record<ApplianceCategory, { label: string; icon: str
 export const CATEGORY_ORDER: ApplianceCategory[] =
   ['lights', 'fans', 'ac', 'heater', 'cooler', 'fridge', 'tv', 'thermostat', 'robo_cleaner', 'smart_plug'];
 
+/* Baseline draw per powered device. Percent-ramp categories scale
+   proportionally with their value in the telemetry strip. */
+export const CATEGORY_WATTS: Record<ApplianceCategory, number> = {
+  lights: 15, fans: 65, ac: 1200, heater: 1500, cooler: 220,
+  fridge: 150, tv: 110, thermostat: 120, robo_cleaner: 60, smart_plug: 45,
+};
+
+/* Value-control shape per category.
+   - 'brightness': 0–100 % glass slider
+   - 'temp': ranged stepper (°C)
+   - 'steps': segmented Off/Low/Med/High selector                  */
+export interface ValueRange { min: number; max: number; step: number }
+export type ValueControl =
+  | { kind: 'brightness' }
+  | { kind: 'temp'; range: ValueRange }
+  | { kind: 'steps'; levels: { label: string; value: number }[] };
+
+const STEPS: { label: string; value: number }[] = [
+  { label: 'Off', value: 0 }, { label: 'Low', value: 33 },
+  { label: 'Med', value: 66 }, { label: 'High', value: 100 },
+];
+
+export const CATEGORY_CONTROL: Record<ApplianceCategory, ValueControl> = {
+  lights:      { kind: 'brightness' },
+  ac:          { kind: 'temp', range: { min: 16, max: 30, step: 0.5 } },
+  heater:      { kind: 'temp', range: { min: 16, max: 30, step: 0.5 } },
+  cooler:      { kind: 'temp', range: { min: 16, max: 30, step: 0.5 } },
+  thermostat:  { kind: 'temp', range: { min: 16, max: 30, step: 0.5 } },
+  fridge:      { kind: 'temp', range: { min: 1,  max: 7,  step: 0.5 } },
+  fans:        { kind: 'steps', levels: STEPS },
+  tv:          { kind: 'steps', levels: STEPS },
+  robo_cleaner:{ kind: 'steps', levels: STEPS },
+  smart_plug:  { kind: 'steps', levels: STEPS },
+};
+
 export function chunk<T>(arr: T[], size: number): T[][] {
   const out: T[][] = [];
-  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, size + i));
   return out;
 }
 

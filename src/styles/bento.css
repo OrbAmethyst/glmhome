@@ -36,9 +36,20 @@
   border: 1px solid var(--glass-stroke); border-radius: 20px;
   padding: 13px; min-width: 0; max-width: 100%;
   box-shadow: var(--glass-shadow), var(--glass-sheen);
+  cursor: pointer;
   transition: transform 0.16s ease, opacity 0.2s ease, box-shadow 0.25s ease, border-color 0.35s ease, background 0.35s ease;
   animation: cardIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
+/* unreachable (offline) devices — gently desaturated, still informative */
+.bcard.off-remote { filter: grayscale(0.3); }
+.bcard.off-remote .bval.dim { opacity: 0.3; }
+
+/* room-filter change — 200ms spring cross-fade on all cards */
+.bento-scroll.blend .bcard {
+  animation: cardBlend 0.2s cubic-bezier(0.22, 1, 0.36, 1) backwards !important;
+  animation-delay: calc(var(--i, 0) * 25ms) !important;
+}
+@keyframes cardBlend { from { opacity: 0; transform: translateY(6px) scale(0.98); } }
 .bcard:active { transform: scale(0.985); }
 .bcard.removing { opacity: 0; transform: scale(0.93); }
 .bcard.fresh { border-color: rgba(13, 184, 211, 0.6); }

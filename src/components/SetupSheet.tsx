@@ -11,16 +11,19 @@ import type { ApplianceCategory } from '../types';
 interface SetupSheetProps {
   category: ApplianceCategory;
   closing: boolean;
+  /** room preselected by the spatial rail ('all' → default first room) */
+  defaultRoom?: string;
   onDismiss: () => void;
   onConnected: (id: string, name: string, room: string) => void;
 }
 
-export function SetupSheet({ category, closing, onDismiss, onConnected }: SetupSheetProps) {
+export function SetupSheet({ category, closing, defaultRoom, onDismiss, onConnected }: SetupSheetProps) {
   const { addDevice } = useSmartHome();
   const meta = CATEGORY_META[category];
+  const initialRoom = defaultRoom ?? ROOMS[0];
 
-  const [room, setRoom] = useState<string>(ROOMS[0]);
-  const [name, setName] = useState<string>(`${ROOMS[0]} ${meta.label}`);
+  const [room, setRoom] = useState<string>(initialRoom);
+  const [name, setName] = useState<string>(`${initialRoom} ${meta.label}`);
   const [nameDirty, setNameDirty] = useState(false);
   const [powerOn, setPowerOn] = useState(true);
   const [roomOpen, setRoomOpen] = useState(false);

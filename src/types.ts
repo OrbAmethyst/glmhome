@@ -12,8 +12,8 @@ export interface Device {
   room: string;
   isOnline: boolean;
   power: boolean;
-  value?: number;
-  unit?: string;
+  value?: number;   // brightness %, temp °C, or step % for segmented devices
+  unit?: string;    // '%', '°C', 'W'
 }
 
 export interface ToastData {
@@ -23,3 +23,6 @@ export interface ToastData {
   actionLabel?: string;
   onAction?: () => void;
 }
+
+/* Spatial room filter — 'all' shows the whole home */
+export type RoomFilter = string; // 'all' | one of ROOMS

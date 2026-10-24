@@ -1,3 +1,4 @@
+import type { CSSProperties, MouseEvent as ReactMouseEvent } from 'react';
 import { Icon } from './Icon';
 import { ToggleSwitch } from './ToggleSwitch';
 import { CATEGORY_META } from '../config';
@@ -5,6 +6,7 @@ import type { Device } from '../types';
 
 /* ============================================================
    GLASS BENTO CARD — hero / cell / wide variants
+   Tap (outside buttons) opens the deep control sheet.
    ============================================================ */
 export type BentoVariant = 'hero' | 'cell' | 'wide';
 
@@ -16,9 +18,10 @@ interface BentoCardProps {
   removing: boolean;
   onToggle: () => void;
   onDelete: () => void;
+  onOpen: () => void;
 }
 
-export function BentoCard({ device, variant, index, fresh, removing, onToggle, onDelete }: BentoCardProps) {
+export function BentoCard({ device, variant, index, fresh, removing, onToggle, onDelete, onOpen }: BentoCardProps) {
   const meta = CATEGORY_META[device.category];
   const stateShort = device.isOnline ? (device.power ? 'On' : 'Off') : 'Offline';
   const val = `${device.value ?? 0}${device.unit ?? ''}`;
@@ -29,10 +32,17 @@ export function BentoCard({ device, variant, index, fresh, removing, onToggle, o
     'bcard',
     variant === 'hero' ? 'b-hero' : variant === 'cell' ? 'b-cell' : 'b-wide',
     live ? 'pw' : '',
+    device.isOnline ? '' : 'off-remote',
     variant === 'hero' && live ? 'on-hero' : '',
     fresh ? 'fresh' : '',
     removing ? 'removing' : '',
   ].filter(Boolean).join(' ');
+
+  /* card-level open — never when the tap is on a button (toggle / delete) */
+  const openIfIdle = (e: ReactMouseEvent) => {
+    if ((e.target as HTMLElement).closest('button')) return;
+    onOpen();
+  };
 
   const chip = (
     <div className="chip">
@@ -42,7 +52,8 @@ export function BentoCard({ device, variant, index, fresh, removing, onToggle, o
 
   if (variant === 'wide') {
     return (
-      <article className={cls} style={{ animationDelay: `${Math.min(index, 8) * 45}ms` }}>
+      <article className={cls} style={{ '--i': index % 4, animationDelay: `${Math.min(index, 8) * 45}ms` } as CSSProperties}
+               onClick={openIfIdle}>
         {chip}
         <div className="bcell-sp" style={{ minWidth: 0 }}>
           <div className="bname">{device.name}</div>
@@ -65,7 +76,8 @@ export function BentoCard({ device, variant, index, fresh, removing, onToggle, o
 
   const hero = variant === 'hero';
   return (
-    <article className={cls} style={{ animationDelay: `${Math.min(index, 8) * 45}ms` }}>
+    <article className={cls} style={{ '--i': index % 4, animationDelay: `${Math.min(index, 8) * 45}ms` } as CSSProperties}
+             onClick={openIfIdle}>
       <div className="bwater"><Icon name={meta.icon} size={hero ? 104 : 78} /></div>
       <div className="brow">
         {chip}
