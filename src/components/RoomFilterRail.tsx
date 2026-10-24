@@ -4,44 +4,41 @@ import { useSmartHome } from '../store/SmartHomeStore';
 import type { Device, RoomFilter } from '../types';
 
 /* ============================================================
-   SPATIAL ROOM RAIL — sticky spatial filter above the bento
+   SPATIAL ROOM RAIL — static strip above the bento (scrolls with
+   the section). One chip per room that actually holds a paired
+   device, plus All.
    ============================================================ */
 interface RoomFilterRailProps {
-  devices: Device[];      // full (unfiltered) list — counts must not shrink with the filter
+  devices: Device[];      // full (unfiltered) list — chips must not vanish mid-filter
   onSelectRoom: (room: RoomFilter) => void;
 }
 
 export function RoomFilterRail({ devices, onSelectRoom }: RoomFilterRailProps) {
   const { selectedRoom } = useSmartHome();
 
-  const counts = useMemo(() => {
-    const map = new Map<string, number>();
-    for (const d of devices) {
-      if (d.power && d.isOnline) map.set(d.room, (map.get(d.room) ?? 0) + 1);
-    }
-    return map;
-  }, [devices]);
-  const allActive = devices.filter((d) => d.power && d.isOnline).length;
-  const roomsInUse = ROOMS.filter((r) => devices.some((d) => d.room === r));
-  const rooms = [...roomsInUse, ...ROOMS.filter((r) => !roomsInUse.includes(r))];
+  /* chips exist only for rooms with a paired device */
+  const rooms = useMemo(
+    () => ROOMS.filter((room) => devices.some((d) => d.room === room)),
+    [devices],
+  );
 
   return (
-    <div className="room-rail-wrap">
-      <div className="room-rail" role="tablist" aria-label="Filter devices by room">
-        {(['all', ...rooms] as RoomFilter[]).map((room) => {
-          const count = room === 'all' ? allActive : (counts.get(room) ?? 0);
-          const active = selectedRoom === room;
-          return (
-            <button key={room} role="tab" aria-selected={active}
-                    className={`rchip${active ? ' active' : ''}`}
-                    onClick={() => onSelectRoom(room)}>
-              <span className="rchip-name">{room === 'all' ? 'All' : room}</span>
-              {count > 0 && <span className="rchip-dot" aria-hidden="true">•</span>}
-              <span className="rchip-count">{count > 0 ? count : '–'}</span>
-            </button>
-          );
-        })}
-      </div>
+    <div className="room-rail" role="tablist" aria-label="Filter devices by room">
+      <button className={`rchip${selectedRoom === 'all' ? ' active' : ''}`}
+              onClick={() => onSelectRoom('all')}>
+        All
+        <span className="rchip-count">{devices.length}</span>
+      </button>
+      {rooms.map((room) => {
+        const count = devices.filter((d) => d.room === room).length;
+        return (
+          <button key={room} className={`rchip${selectedRoom === room ? ' active' : ''}`}
+                  onClick={() => onSelectRoom(room)}>
+            <span className="rchip-name">{room}</span>
+            <span className="rchip-count">{count}</span>
+          </button>
+        );
+      })}
     </div>
   );
 }

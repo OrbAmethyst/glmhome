@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { UIEvent as ReactUIEvent } from 'react';
 import { StatusBar } from './components/StatusBar';
 import { AppHeader } from './components/AppHeader';
 import { ActiveSection } from './components/ActiveSection';
@@ -47,6 +48,13 @@ function AppShell() {
     [devices, selectedRoom, q],
   );
 
+  /* if a room filter loses its last device, fall back to the whole home */
+  useEffect(() => {
+    if (selectedRoom !== 'all' && !devices.some((d) => d.room === selectedRoom)) {
+      setSelectedRoom('all');
+    }
+  }, [devices, selectedRoom, setSelectedRoom]);
+
   const openSheet = (cat: ApplianceCategory) => { setSheetClosing(false); setSheetCat(cat); };
 
   const requestSheetClose = useCallback(() => {
@@ -64,16 +72,32 @@ function AppShell() {
     window.setTimeout(() => { setCtrlId(null); setCtrlClosing(false); }, 270);
   }, []);
 
-  /* expose the live appbar height so the sticky room rail can sit flush under it */
+  /* scroll-linked header fold: --collapse (0→1 over ~52px of scroll) is
+     written straight onto the appbar element — no re-renders per frame,
+     and the top row recedes/fades gradually, returning on the way back up */
+  const appbarRef = useRef<HTMLElement | null>(null);
   useEffect(() => {
-    const appbar = document.querySelector('.appbar');
+    const bar = document.querySelector<HTMLElement>('.appbar');
+    appbarRef.current = bar;
+    // restore exact state if the app mounts already scrolled (page reload)
     const sc = scrollerRef.current;
-    if (!appbar || !sc) return;
-    const sync = () => { sc.style.setProperty('--appbar-h', `${appbar.getBoundingClientRect().height}px`); };
-    sync();
-    const ro = new ResizeObserver(sync);
-    ro.observe(appbar);
-    return () => ro.disconnect();
+    if (bar && sc) {
+      const k = Math.min(1, Math.max(0, sc.scrollTop / 52));
+      bar.style.setProperty('--collapse', k.toFixed(3));
+      bar.classList.toggle('folded', k >= 1);
+    }
+  }, []);
+
+  const onScrollerScroll = useCallback((e: ReactUIEvent<HTMLDivElement>) => {
+    const k = Math.min(1, Math.max(0, e.currentTarget.scrollTop / 52));
+    const bar = appbarRef.current;
+    if (bar) {
+      bar.style.setProperty('--collapse', k.toFixed(3));
+      bar.classList.toggle('folded', k >= 1);
+    }
+    // only flips state at the threshold — no per-frame React renders
+    const far = e.currentTarget.scrollTop > 26;
+    setScrolled((prev) => (prev === far ? prev : far));
   }, []);
 
   /* large-sheet exclusivity: the other one closes on open */
@@ -129,8 +153,7 @@ function AppShell() {
   return (
     <>
       <StatusBar />
-      <div className="scroll" ref={scrollerRef}
-           onScroll={(e) => setScrolled(e.currentTarget.scrollTop > 6)}>
+      <div className="scroll" ref={scrollerRef} onScroll={onScrollerScroll}>
         <AppHeader query={query} onQuery={setQuery} scrolled={scrolled} onToast={showToast} />
         <main>
           <ActiveSection query={query} filtered={filtered} freshId={freshId} removingId={removingId}

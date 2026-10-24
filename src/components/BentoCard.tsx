@@ -14,6 +14,8 @@ interface BentoCardProps {
   device: Device;
   variant: BentoVariant;
   index: number;
+  /** mount animation plays only on the section's first paint */
+  anim: boolean;
   fresh: boolean;
   removing: boolean;
   onToggle: () => void;
@@ -21,7 +23,7 @@ interface BentoCardProps {
   onOpen: () => void;
 }
 
-export function BentoCard({ device, variant, index, fresh, removing, onToggle, onDelete, onOpen }: BentoCardProps) {
+export function BentoCard({ device, variant, index, anim, fresh, removing, onToggle, onDelete, onOpen }: BentoCardProps) {
   const meta = CATEGORY_META[device.category];
   const stateShort = device.isOnline ? (device.power ? 'On' : 'Off') : 'Offline';
   const val = `${device.value ?? 0}${device.unit ?? ''}`;
@@ -38,6 +40,11 @@ export function BentoCard({ device, variant, index, fresh, removing, onToggle, o
     removing ? 'removing' : '',
   ].filter(Boolean).join(' ');
 
+  const style = {
+    animationName: anim ? undefined : 'none',
+    animationDelay: anim ? `${Math.min(index, 8) * 45}ms` : undefined,
+  } as CSSProperties;
+
   /* card-level open — never when the tap is on a button (toggle / delete) */
   const openIfIdle = (e: ReactMouseEvent) => {
     if ((e.target as HTMLElement).closest('button')) return;
@@ -52,8 +59,7 @@ export function BentoCard({ device, variant, index, fresh, removing, onToggle, o
 
   if (variant === 'wide') {
     return (
-      <article className={cls} style={{ '--i': index % 4, animationDelay: `${Math.min(index, 8) * 45}ms` } as CSSProperties}
-               onClick={openIfIdle}>
+      <article className={cls} style={style} onClick={openIfIdle}>
         {chip}
         <div className="bcell-sp" style={{ minWidth: 0 }}>
           <div className="bname">{device.name}</div>
@@ -76,8 +82,7 @@ export function BentoCard({ device, variant, index, fresh, removing, onToggle, o
 
   const hero = variant === 'hero';
   return (
-    <article className={cls} style={{ '--i': index % 4, animationDelay: `${Math.min(index, 8) * 45}ms` } as CSSProperties}
-             onClick={openIfIdle}>
+    <article className={cls} style={style} onClick={openIfIdle}>
       <div className="bwater"><Icon name={meta.icon} size={hero ? 104 : 78} /></div>
       <div className="brow">
         {chip}

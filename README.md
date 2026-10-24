@@ -5,9 +5,9 @@ A mobile-first Smart Home web application built with **React 18 + TypeScript + V
 Glassmorphism look and feel on the **Arctic Depths** palette, designed on a strict
 **375px mobile contract** (responsive on wider screens, designed for 375px).
 
-> Current state: **Fold 2** — glassmorphism bento, collapsing header, ambient telemetry
-> strip, sticky spatial room rail, deep device-control sheets, localStorage persistence.
-> (Checkpoint 1 flat-theme and Checkpoint 2 pairing flow are previous design states.)
+> Current state: **Fold 2.1** — glassmorphism bento, gradually folding header,
+> spatial room rail (occupied rooms only), deep device-control sheets,
+> localStorage persistence, smooth scroll physics.
 
 ---
 
@@ -52,10 +52,8 @@ my-sweet-home/
         ├── Icon.tsx            # Material Symbols Rounded @ wght 300 (FILL 1 when powered)
         ├── ToggleSwitch.tsx    # gradient power switch
         ├── BentoCard.tsx       # hero / cell / wide variants + tap-to-open controls
-        ├── ActiveSection.tsx   # bento carousel, ResizeObserver width lock, pager
-        ├── RoomFilterRail.tsx  # sticky spatial filter chips with active counts
-        ├── TelemetryStrip.tsx  # simulated live home metrics (watts / temp / ratio)
-        ├── AnimatedNumber.tsx  # eased rAF number roll for telemetry
+        ├── ActiveSection.tsx   # bento carousel, ResizeObserver width lock, pager, room filter
+        ├── RoomFilterRail.tsx  # small chip rail above the bento — one chip per occupied room
         ├── CatalogSection.tsx  # 10 appliance types (labels at regular weight)
         ├── SetupSheet.tsx      # bottom-sheet pairing flow (300ms simulated connect)
         ├── DeviceControlSheet.tsx  # per-category deep controls (drag-to-dismiss sheet)
@@ -103,17 +101,22 @@ switch the FILL axis to 1.
 ## Behavior contract (Fold 2)
 
 - **Bento**: 4 devices per page — first card is the hero (full-width, tinted
-  glass when powered), last card is wide; pages snap horizontally; pager shows
-  dots that morph into a gradient pill for the active page; mouse drag-to-scroll
-  with click suppression.
-- **Spatial room rail**: sticky frosted chip rail under the app bar (follows
-  `--appbar-h` measured via ResizeObserver). Rooms with active (powered online)
-  devices first. Selecting a chip applies a 200ms spring cross-fade to the cards
-  and live-filters the bento + catalog scope; the pairing sheet opens with that
-  room preselected.
-- **Telemetry strip**: slim frosted bar under the bento — Active Load (W),
-  Indoor Temp (°C) and Devices Running, all eased-rolled on change (rAF tween,
-  respects `prefers-reduced-motion`).
+  glass when powered), last card is wide; pages snap horizontally; the pager's
+  dots morph into a gradient pill for the active page. Mouse drag-to-scroll
+  holds scroll-snap off for the whole gesture and glides smoothly to the
+  nearest page on release — snap and scrollLeft never fight; click suppression
+  keeps drags from opening sheets.
+- **Spatial room rail**: a small chip rail that sits directly above the bento
+  and scrolls away with the section — no sticky pinning and no filter effects.
+  Chips exist **only for rooms that actually hold a paired device** (plus All);
+  each shows a device-count pill. Selecting a chip live-filters the bento +
+  catalog scope and preselects the room in the pairing sheet; if a room loses
+  its last device the filter falls back to All.
+- **Header fold**: scroll-linked and gradual — the top row (greeting, home
+  selector, avatar) recedes and fades proportionally to scroll depth
+  (`--collapse` 0→1 over ~52px, written straight to the element, no re-renders)
+  and returns just as gradually when scrolling back up. The appbar disables
+  Chrome scroll anchoring so the fold never fights the scroll.
 - **Device control sheet**: tapping a card (outside its buttons) opens the
   drag-to-dismiss controls sheet — brightness slider with scaling ambient glow
   (lights), ±0.5° stepper dial with category ranges (climate), or Off/Low/Med/High

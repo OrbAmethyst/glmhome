@@ -1,7 +1,7 @@
 {
   "name": "my-sweet-home",
   "private": true,
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Mobile-first Smart Home web app — glassmorphism UI, Arctic Depths palette, 375px design contract",
   "type": "module",
   "scripts": {

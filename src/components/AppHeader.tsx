@@ -36,7 +36,7 @@ export function AppHeader({ query, onQuery, scrolled, onToast }: AppHeaderProps)
   const clearSearch = () => { onQuery(''); inputRef.current?.focus(); };
 
   return (
-    <header className={`appbar${scrolled ? ' scrolled' : ''}`}>
+    <header className="appbar">
       <div className="htop">
         <div className="hid" ref={menuRef}>
           <div className="greet">{greeting}, Alex</div>

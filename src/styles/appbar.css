@@ -6,44 +6,44 @@
   background: rgba(248, 250, 252, 0.52);
   backdrop-filter: blur(22px) saturate(180%);
   -webkit-backdrop-filter: blur(22px) saturate(180%);
-  border-bottom: 1px solid transparent;
-  transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
-.appbar.scrolled {
-  border-bottom-color: rgba(255, 255, 255, 0.55);
-  box-shadow: 0 12px 32px -18px rgba(25, 53, 70, 0.35);
+/* hairline + soft shadow fade in with scroll depth — scroll-linked,
+   no keyframes, both directions equally smooth */
+.appbar::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 14px 30px -16px rgba(25, 53, 70, 0.35);
+  opacity: var(--collapse, 0);
+  pointer-events: none;
 }
 @media (max-width: 519.9px), (max-height: 679.9px) {
   .appbar { padding-top: calc(14px + env(safe-area-inset-top, 0px)); }
 }
 
-/* Top row (home selector + avatar) tucks away when scrolling down;
-   the search bar stays pinned. The row collapses via negative margin —
-   deliberately NO overflow clipping here: a clipped composited layer
-   (e.g. the avatar glow) under this appbar's backdrop-filter paints a
-   stray square patch in Chromium (Arc/Chrome). */
+/* Top row (home selector + avatar) folds away proportionally to scroll:
+   --collapse (0 → 1) is written straight onto the element scroll-side
+   (no React renders), recedes via negative margin — deliberately NO
+   overflow clipping here: a clipped composited layer (e.g. the avatar
+   glow) under this appbar's backdrop-filter paints a stray square patch
+   in Chromium (Arc/Chrome). */
 .htop {
   display: flex; align-items: flex-end; gap: 10px;
-  transition: margin-bottom 0.32s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.16s ease, transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  margin-bottom: calc(-46px * var(--collapse, 0)); /* cancels the row's flow height (avatar is 46px) */
+  opacity: calc(1 - var(--collapse, 0));
+  transform: translateY(calc(-8px * var(--collapse, 0)));
 }
-.appbar.scrolled .htop {
-  margin-bottom: -46px;  /* cancels the row's flow height (avatar is 46px) */
-  opacity: 0; transform: translateY(-6px); pointer-events: none;
-  visibility: hidden;   /* fully unpaint once collapsed — kills any residual glyph */
-  transition: margin-bottom 0.32s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.16s ease, transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0.32s;
-}
+.appbar.folded .htop { pointer-events: none; visibility: hidden; } /* fully unpaint once folded */
 .hsearch {
   display: flex; align-items: center; gap: 9px; height: 46px; width: 100%;
-  margin-top: 13px;
+  margin-top: calc(13px * (1 - var(--collapse, 0)));
   padding: 0 10px 0 14px;
   background: var(--glass-fill);
   backdrop-filter: blur(14px) saturate(160%);
   -webkit-backdrop-filter: blur(14px) saturate(160%);
   border: 1px solid var(--glass-stroke); border-radius: 16px;
   box-shadow: var(--glass-shadow), var(--glass-sheen);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, margin-top 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
-.appbar.scrolled .hsearch { margin-top: 0; }
 .hsearch:focus-within {
   border-color: rgba(13, 184, 211, 0.55);
   box-shadow: 0 0 0 4px rgba(13, 184, 211, 0.16), var(--glass-shadow), var(--glass-sheen);

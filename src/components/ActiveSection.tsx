@@ -4,7 +4,6 @@ import { Icon } from './Icon';
 import { BentoCard } from './BentoCard';
 import type { BentoVariant } from './BentoCard';
 import { RoomFilterRail } from './RoomFilterRail';
-import { TelemetryStrip } from './TelemetryStrip';
 import { chunk } from '../config';
 import { useSmartHome } from '../store/SmartHomeStore';
 import type { Device, RoomFilter } from '../types';
@@ -28,28 +27,25 @@ interface ActiveSectionProps {
 }
 
 export function ActiveSection({ query, filtered, freshId, removingId, resetToken, onToggle, onDelete, onOpenDevice }: ActiveSectionProps) {
-  const { devices, selectedRoom, setSelectedRoom } = useSmartHome();
+  const { devices, setSelectedRoom } = useSmartHome();
   const pages = useMemo(() => chunk(filtered, 4), [filtered]);
   const [page, setPage] = useState(0);
   const [pageW, setPageW] = useState<number | null>(null);
   const scRef = useRef<HTMLDivElement | null>(null);
   const drag = useRef({ active: false, startX: 0, startLeft: 0, moved: false });
+  const snapTimer = useRef(0);
 
   const total = devices.length;
   const onCount = devices.filter((d) => d.power && d.isOnline).length;
   const searching = query.trim().length > 0;
 
-  /* --- 200ms spring cross-fade when the room filter changes --- */
-  const [blending, setBlending] = useState(false);
-  const prevRoom = useRef(selectedRoom);
+  /* mount animation (cardIn) plays only on the very first paint —
+     filtering re-mounts cards and must swap instantly, no fx */
+  const [animCards, setAnimCards] = useState(true);
   useEffect(() => {
-    if (prevRoom.current === selectedRoom) return;
-    prevRoom.current = selectedRoom;
-    setBlending(false);
-    const raf = requestAnimationFrame(() => setBlending(true));
-    const t = window.setTimeout(() => setBlending(false), 280);
-    return () => { cancelAnimationFrame(raf); window.clearTimeout(t); };
-  }, [selectedRoom]);
+    const t = window.setTimeout(() => setAnimCards(false), 900);
+    return () => window.clearTimeout(t);
+  }, []);
 
   /* --- pixel-lock the page width to the scroller's client width --- */
   useEffect(() => {
@@ -66,12 +62,26 @@ export function ActiveSection({ query, filtered, freshId, removingId, resetToken
     return () => ro.disconnect();
   }, [pages.length]); // re-attach whenever the scroller mounts/unmounts
 
+  /* --- smooth glide to a page center; snap is disabled during the
+         motion so the engine can't fight the tween, re-enabled after --- */
+  const glideTo = useCallback((left: number) => {
+    const el = scRef.current;
+    if (!el) return;
+    const cw = el.clientWidth;
+    const target = Math.max(0, Math.min(left, cw * (pages.length - 1)));
+    el.style.scrollSnapType = 'none'; // hold the snap during the glide
+    el.scrollTo({ left: target, behavior: 'smooth' });
+    window.clearTimeout(snapTimer.current);
+    snapTimer.current = window.setTimeout(() => {
+      if (scRef.current) scRef.current.style.scrollSnapType = '';
+    }, 620);
+  }, [pages.length]);
+
   const goTo = useCallback((i: number) => {
     const el = scRef.current;
     if (!el) return;
-    const clamped = Math.max(0, Math.min(i, pages.length - 1));
-    el.scrollTo({ left: clamped * el.clientWidth, behavior: 'smooth' });
-  }, [pages.length]);
+    glideTo(Math.max(0, Math.min(i, pages.length - 1)) * el.clientWidth);
+  }, [pages.length, glideTo]);
 
   useEffect(() => {
     const el = scRef.current;
@@ -90,9 +100,13 @@ export function ActiveSection({ query, filtered, freshId, removingId, resetToken
     setPage((p) => (p === i ? p : i));
   };
 
+  /* mouse drag-to-scroll: snap is held off for the whole gesture,
+     so scrollLeft assignment is butter-smooth, then glides home */
   const onPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (e.pointerType !== 'mouse') return;
+    window.clearTimeout(snapTimer.current);
     drag.current = { active: true, startX: e.clientX, startLeft: e.currentTarget.scrollLeft, moved: false };
+    e.currentTarget.style.scrollSnapType = 'none';
   };
   const onPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
     const d = drag.current;
@@ -101,7 +115,19 @@ export function ActiveSection({ query, filtered, freshId, removingId, resetToken
     if (Math.abs(dx) > 6) d.moved = true;
     e.currentTarget.scrollLeft = d.startLeft - dx;
   };
-  const onPointerUp = () => { drag.current.active = false; };
+  const endDrag = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const d = drag.current;
+    if (!d.active) return;
+    d.active = false;
+    const el = e.currentTarget;
+    if (!d.moved) {
+      el.style.scrollSnapType = '';
+      return;
+    }
+    const cw = el.clientWidth;
+    const nearest = Math.max(0, Math.min(pages.length - 1, Math.round(el.scrollLeft / cw)));
+    glideTo(nearest * cw); // spring the release to the nearest page
+  };
   const onClickCapture = (e: ReactMouseEvent) => {
     if (drag.current.moved) { e.preventDefault(); e.stopPropagation(); drag.current.moved = false; }
   };
@@ -140,10 +166,10 @@ export function ActiveSection({ query, filtered, freshId, removingId, resetToken
             <RoomFilterRail devices={devices} onSelectRoom={(room: RoomFilter) => setSelectedRoom(room)} />
           )}
 
-          <div className={`bento-scroll${blending ? ' blend' : ''}`} ref={scRef} style={pageStyle}
+          <div className="bento-scroll" ref={scRef} style={pageStyle}
                onScroll={onScroll}
-               onPointerDown={onPointerDown} onPointerMove={onPointerMove}
-               onPointerUp={onPointerUp} onPointerLeave={onPointerUp}
+               onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={endDrag}
+               onPointerLeave={endDrag}
                onClickCapture={onClickCapture}
                aria-label="Active devices, swipe to browse">
             {pages.map((pd, pi) => (
@@ -152,7 +178,7 @@ export function ActiveSection({ query, filtered, freshId, removingId, resetToken
                   const variant: BentoVariant =
                     i === 0 ? 'hero' : (pd.length === 2 || i === 3) ? 'wide' : 'cell';
                   return (
-                    <BentoCard key={d.id} device={d} variant={variant} index={pi * 4 + i}
+                    <BentoCard key={d.id} device={d} variant={variant} index={pi * 4 + i} anim={animCards}
                       fresh={d.id === freshId} removing={d.id === removingId}
                       onToggle={() => onToggle(d.id)} onDelete={() => onDelete(d, pi * 4 + i)}
                       onOpen={() => onOpenDevice(d)} />
@@ -172,8 +198,6 @@ export function ActiveSection({ query, filtered, freshId, removingId, resetToken
               ))}
             </div>
           )}
-
-          <TelemetryStrip devices={devices} />
 
           {!searching && onCount === 0 && (
             <div className="rest-note">

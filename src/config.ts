@@ -21,13 +21,6 @@ export const CATEGORY_META: Record<ApplianceCategory, { label: string; icon: str
 export const CATEGORY_ORDER: ApplianceCategory[] =
   ['lights', 'fans', 'ac', 'heater', 'cooler', 'fridge', 'tv', 'thermostat', 'robo_cleaner', 'smart_plug'];
 
-/* Baseline draw per powered device. Percent-ramp categories scale
-   proportionally with their value in the telemetry strip. */
-export const CATEGORY_WATTS: Record<ApplianceCategory, number> = {
-  lights: 15, fans: 65, ac: 1200, heater: 1500, cooler: 220,
-  fridge: 150, tv: 110, thermostat: 120, robo_cleaner: 60, smart_plug: 45,
-};
-
 /* Value-control shape per category.
    - 'brightness': 0–100 % glass slider
    - 'temp': ranged stepper (°C)
