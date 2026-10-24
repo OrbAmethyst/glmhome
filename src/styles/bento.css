@@ -72,7 +72,12 @@
 .on-hero .bname { color: #fff; }
 .on-hero .bmeta { color: rgba(255, 255, 255, 0.8); }
 .on-hero .bval { color: #fff; }
-.on-hero .chip { background: rgba(255, 255, 255, 0.16); border-color: rgba(255, 255, 255, 0.3); color: #fff; }
+/* filled card → white logo so it stays legible on the deep-blue fill */
+.on-hero .chip {
+  background: rgba(255, 255, 255, 0.24);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #fff;
+}
 .on-hero .bdel { color: rgba(255, 255, 255, 0.7); }
 .on-hero .bdel:active { background: rgba(255, 255, 255, 0.18); color: #fff; }
 .on-hero .switch.on { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.45), 0 4px 14px rgba(0, 0, 0, 0.25); }
@@ -86,9 +91,11 @@
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 .b-wide .chip { width: 44px; height: 44px; }
-.bcard.pw .chip {
-  background: linear-gradient(135deg, rgba(13, 184, 211, 0.22), rgba(27, 127, 220, 0.22));
-  border-color: rgba(13, 184, 211, 0.38); color: #0A8FB8;
+/* powered chips — tinted glass on light cards (filled cards stay white via .on-hero) */
+.bcard.pw:not(.on-hero) .chip {
+  background: linear-gradient(135deg, rgba(13, 184, 211, 0.28), rgba(27, 127, 220, 0.28));
+  border-color: rgba(13, 184, 211, 0.46); color: #07759B;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
 }
 
 .bname { font-size: 13px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -97,11 +104,10 @@
 .bval.dim { opacity: 0.4; }
 .bval .bunit { font-size: 15px; font-weight: 600; opacity: 0.72; margin-left: 2px; }
 
-.bmeta { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; color: var(--ink-2); white-space: nowrap; overflow: hidden; min-width: 0; }
+.bmeta { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; color: var(--ink-2); white-space: nowrap; overflow: hidden; min-width: 0; padding-left: 6px; margin-left: -6px; }
 .b-wide .bmeta { font-size: 11.5px; }
 .cdot { width: 6.5px; height: 6.5px; border-radius: 50%; background: var(--offline); flex: none; }
-.cdot.on { background: var(--online); box-shadow: 0 0 0 3px rgba(20, 181, 138, 0.15); }
-.bsep { color: rgba(82, 110, 127, 0.5); }
+.cdot.on { background: var(--online); box-shadow: 0 0 0 3px rgba(20, 181, 138, 0.15); }.bsep { color: rgba(82, 110, 127, 0.5); }
 .bstate { font-weight: 500; color: #648092; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bstate.hot { color: var(--ink); font-weight: 600; }
 .b-wide .bstate.hot { color: #0A7FA0; }

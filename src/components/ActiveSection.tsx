@@ -97,11 +97,14 @@ export function ActiveSection({ query, filtered, freshId, removingId, resetToken
     <section className="section sec-active" id="active-section">
       <div className="section-head">
         <h2 className="section-title">My Devices</h2>
-        {total > 0 && (
-          <span className="section-chip">
-            {searching ? `${filtered.length} found` : `${onCount} of ${total} on`}
+        {total > 0 && (searching ? (
+          <span className="section-chip">{filtered.length} found</span>
+        ) : (
+          <span className={`section-chip${onCount > 0 ? ' live' : ''}`}>
+            <span className="c-dot" />
+            {`${total} connected`}
           </span>
-        )}
+        ))}
       </div>
 
       {total === 0 ? (

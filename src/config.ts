@@ -7,7 +7,7 @@ export const ROOMS: string[] = ['Living Room', 'Bedroom', 'Kitchen', 'Balcony', 
 
 export const CATEGORY_META: Record<ApplianceCategory, { label: string; icon: string; value: number; unit: string }> = {
   lights:      { label: 'Lights',      icon: 'lightbulb',           value: 80, unit: '%'  },
-  fans:        { label: 'Fans',        icon: 'toys',                value: 55, unit: '%'  },
+  fans:        { label: 'Fans',        icon: 'mode_fan',            value: 55, unit: '%'  },
   ac:          { label: 'AC',          icon: 'ac_unit',             value: 24, unit: '°C' },
   heater:      { label: 'Heater',      icon: 'local_fire_department', value: 23, unit: '°C' },
   cooler:      { label: 'Cooler',      icon: 'air',                 value: 17, unit: '°C' },

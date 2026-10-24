@@ -46,7 +46,7 @@ my-sweet-home/
     ├── store/
     │   └── SmartHomeStore.tsx  # Context store — devices, toggle, add, delete, restore
     └── components/
-        ├── AppHeader.tsx       # search (left) + profile avatar (right)
+        ├── AppHeader.tsx       # home selector + profile avatar on top, glass search below
         ├── StatusBar.tsx       # fake status bar (device frame tier only)
         ├── Icon.tsx            # Material Symbols Rounded @ wght 300 (FILL 1 when powered)
         ├── ToggleSwitch.tsx    # gradient power switch

@@ -23,6 +23,7 @@ export function BentoCard({ device, variant, index, fresh, removing, onToggle, o
   const stateShort = device.isOnline ? (device.power ? 'On' : 'Off') : 'Offline';
   const val = `${device.value ?? 0}${device.unit ?? ''}`;
   const live = device.isOnline && device.power;
+  const dotOn = live;
 
   const cls = [
     'bcard',
@@ -46,7 +47,7 @@ export function BentoCard({ device, variant, index, fresh, removing, onToggle, o
         <div className="bcell-sp" style={{ minWidth: 0 }}>
           <div className="bname">{device.name}</div>
           <div className="bmeta">
-            <span className={`cdot${device.isOnline ? ' on' : ''}`} />
+            <span className={`cdot${dotOn ? ' on' : ''}`} />
             <span>{device.room}</span>
             <span className="bsep">·</span>
             <span className={`bstate${live ? ' hot' : ''}`}>
@@ -78,7 +79,7 @@ export function BentoCard({ device, variant, index, fresh, removing, onToggle, o
       {hero && <div className={`bval${live ? '' : ' dim'}`}>{device.value ?? 0}<span className="bunit">{device.unit ?? ''}</span></div>}
       <span className="bcell-sp" />
       <div className="bmeta">
-        <span className={`cdot${device.isOnline ? ' on' : ''}`} />
+        <span className={`cdot${dotOn ? ' on' : ''}`} />
         <span>{stateShort} · {device.room}</span>
       </div>
     </article>

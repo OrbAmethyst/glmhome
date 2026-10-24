@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { Icon } from './Icon';
-import { useSmartHome } from '../store/SmartHomeStore';
 import type { ToastData } from '../types';
 
 /* ============================================================
-   APP BAR — glass search left · profile right · connected pill
+   APP BAR — home selector + profile on top · glass search below
    ============================================================ */
 interface AppHeaderProps {
   query: string;
@@ -14,10 +13,13 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({ query, onQuery, scrolled, onToast }: AppHeaderProps) {
-  const { devices } = useSmartHome();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (scrolled) setMenuOpen(false);
+  }, [scrolled]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -30,32 +32,12 @@ export function AppHeader({ query, onQuery, scrolled, onToast }: AppHeaderProps)
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-  const total = devices.length;
 
   const clearSearch = () => { onQuery(''); inputRef.current?.focus(); };
 
   return (
     <header className={`appbar${scrolled ? ' scrolled' : ''}`}>
       <div className="htop">
-        <div className="hsearch">
-          <Icon name="search" size={19} />
-          <input ref={inputRef} value={query} onChange={(e) => onQuery(e.target.value)}
-                 placeholder="Search appliances" aria-label="Search devices and appliances"
-                 spellCheck={false}
-                 onKeyDown={(e) => { if (e.key === 'Escape') clearSearch(); }} />
-          {query && (
-            <button className="hclear" onClick={clearSearch} aria-label="Clear search">
-              <Icon name="close" size={13} />
-            </button>
-          )}
-        </div>
-        <button className="avatar" aria-label="Profile"
-                onClick={() => onToast({ message: 'Profiles & household members arrive in a later fold.', icon: 'person' })}>
-          AR
-        </button>
-      </div>
-
-      <div className="hrow2">
         <div className="hid" ref={menuRef}>
           <div className="greet">{greeting}, Alex</div>
           <button className="home-btn" onClick={() => setMenuOpen((o) => !o)} aria-haspopup="menu" aria-expanded={menuOpen}>
@@ -79,11 +61,23 @@ export function AppHeader({ query, onQuery, scrolled, onToast }: AppHeaderProps)
             </div>
           )}
         </div>
+        <button className="avatar" aria-label="Profile"
+                onClick={() => onToast({ message: 'Profiles & household members arrive in a later fold.', icon: 'person' })}>
+          AR
+        </button>
+      </div>
 
-        <div className={`badge${total > 0 ? ' live' : ''}`}>
-          <span className="badge-dot" />
-          {total > 0 ? `${total} connected` : 'No devices'}
-        </div>
+      <div className="hsearch">
+        <Icon name="search" size={19} />
+        <input ref={inputRef} value={query} onChange={(e) => onQuery(e.target.value)}
+               placeholder="Search appliances" aria-label="Search devices and appliances"
+               spellCheck={false}
+               onKeyDown={(e) => { if (e.key === 'Escape') clearSearch(); }} />
+        {query && (
+          <button className="hclear" onClick={clearSearch} aria-label="Clear search">
+            <Icon name="close" size={13} />
+          </button>
+        )}
       </div>
     </header>
   );

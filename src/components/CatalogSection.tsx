@@ -16,7 +16,6 @@ export function CatalogSection({ query, onPick }: CatalogSectionProps) {
 
   return (
     <>
-      <div className="divider" role="presentation" />
       <section className="section" aria-label="Add New Appliance">
         <div className="section-head col">
           <h2 className="section-title">Add New Appliance</h2>

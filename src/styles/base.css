@@ -65,7 +65,7 @@ input { font: inherit; }
 /* fallback: no backdrop-filter support → near-opaque frosts */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .bcard, .tile, .hsearch, .appbar, .sheet, .field, .dd-list, .pop,
-  .badge, .section-chip, .empty, .rest-note, .cat-empty, .sheet-ic, .sheet-close {
+  .section-chip, .empty, .rest-note, .cat-empty, .sheet-ic, .sheet-close {
     background-color: rgba(255, 255, 255, 0.94) !important;
   }
 }
@@ -74,10 +74,10 @@ input { font: inherit; }
    SUB-375 COMPACTION — keeps bento math safe on tiny phones
    ============================================================ */
 @media (max-width: 359px) {
-  .section, .sec-active .section-head, .divider, .pager, .foot { --pad: 14px; }
+  .section, .sec-active .section-head, .pager, .foot { --pad: 14px; }
   .section { padding-left: 14px; padding-right: 14px; }
   .sec-active .section-head { margin-left: 14px; margin-right: 14px; }
-  .divider, .pager { margin-left: 14px; margin-right: 14px; padding-left: 0; padding-right: 0; }
+  .pager { margin-left: 14px; margin-right: 14px; padding-left: 0; padding-right: 0; }
   .bento-grid { padding: 2px 14px 4px; gap: 8px; }
   .bcard { padding: 12px; gap: 7px; }
   .brow { gap: 5px; }

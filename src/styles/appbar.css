@@ -17,17 +17,33 @@
   .appbar { padding-top: calc(14px + env(safe-area-inset-top, 0px)); }
 }
 
-.htop { display: flex; align-items: center; gap: 10px; }
+/* Top row (home selector + avatar) tucks away when scrolling down;
+   the search bar stays pinned. The row collapses via negative margin —
+   deliberately NO overflow clipping here: a clipped composited layer
+   (e.g. the avatar glow) under this appbar's backdrop-filter paints a
+   stray square patch in Chromium (Arc/Chrome). */
+.htop {
+  display: flex; align-items: flex-end; gap: 10px;
+  transition: margin-bottom 0.32s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.16s ease, transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.appbar.scrolled .htop {
+  margin-bottom: -46px;  /* cancels the row's flow height (avatar is 46px) */
+  opacity: 0; transform: translateY(-6px); pointer-events: none;
+  visibility: hidden;   /* fully unpaint once collapsed — kills any residual glyph */
+  transition: margin-bottom 0.32s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.16s ease, transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0.32s;
+}
 .hsearch {
-  flex: 1 1 0; min-width: 0; display: flex; align-items: center; gap: 9px; height: 46px;
+  display: flex; align-items: center; gap: 9px; height: 46px; width: 100%;
+  margin-top: 13px;
   padding: 0 10px 0 14px;
   background: var(--glass-fill);
   backdrop-filter: blur(14px) saturate(160%);
   -webkit-backdrop-filter: blur(14px) saturate(160%);
   border: 1px solid var(--glass-stroke); border-radius: 16px;
   box-shadow: var(--glass-shadow), var(--glass-sheen);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, margin-top 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
+.appbar.scrolled .hsearch { margin-top: 0; }
 .hsearch:focus-within {
   border-color: rgba(13, 184, 211, 0.55);
   box-shadow: 0 0 0 4px rgba(13, 184, 211, 0.16), var(--glass-shadow), var(--glass-sheen);
@@ -46,7 +62,8 @@
 .avatar {
   width: 46px; height: 46px; flex: none; border-radius: 50%; display: grid; place-items: center;
   background: var(--grad-ambient);
-  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  /* no backdrop-filter here: it sits on an opaque gradient and a blurred
+     child inside a clipped/transformed ancestor glitches to a square patch on WebKit */
   border: 1px solid rgba(255, 255, 255, 0.4);
   color: #fff; font-size: 14px; font-weight: 700; letter-spacing: 0.02em;
   box-shadow: 0 8px 22px -6px rgba(6, 91, 152, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.4);
@@ -54,8 +71,7 @@
 }
 .avatar:active { transform: scale(0.93); }
 
-.hrow2 { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-top: 13px; }
-.hid { position: relative; min-width: 0; }
+.hid { position: relative; flex: 1 1 0; min-width: 0; }
 .greet { font-size: 12px; font-weight: 500; color: var(--ink-2); margin-bottom: 2px; }
 .home-btn { display: flex; align-items: center; gap: 4px; padding: 0; text-align: left; }
 .home-name { font-size: 19px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); white-space: nowrap; }
@@ -78,19 +94,4 @@
 .pop-item.action { color: var(--ink-2); font-weight: 500; }
 @media (hover: hover) { .pop-item.action:hover { background: rgba(255, 255, 255, 0.7); color: var(--ink); } }
 
-/* Connected indicator pill — tinted glass */
-.badge {
-  display: flex; align-items: center; gap: 7px; flex: none; padding: 7px 12px; border-radius: 999px;
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-  border: 1px solid var(--glass-stroke); font-size: 12px; font-weight: 600;
-  color: var(--ink-2); box-shadow: var(--glass-shadow), var(--glass-sheen); white-space: nowrap; transition: 0.25s ease;
-}
-.badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--offline); }
-.badge.live { background: rgba(13, 184, 211, 0.16); border-color: rgba(13, 184, 211, 0.35); color: #0A7FA0; }
-.badge.live .badge-dot { background: var(--online); animation: pulse 2.2s ease-out infinite; }
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(20, 181, 138, 0.4); }
-  75% { box-shadow: 0 0 0 6px rgba(20, 181, 138, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(20, 181, 138, 0); }
-}
+/* (connected indicator now lives in the section head — see sections.css) */

@@ -9,12 +9,20 @@
 .section-title { font-size: 15.5px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); }
 .section-sub { font-size: 12.5px; font-weight: 400; color: var(--ink-2); }
 .section-chip {
-  font-size: 11.5px; font-weight: 600; color: var(--ink-2); border-radius: 999px; padding: 4px 10px; white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 11.5px; font-weight: 600; color: var(--ink-2); border-radius: 999px; padding: 5px 10px; white-space: nowrap;
   background: rgba(255, 255, 255, 0.55); border: 1px solid var(--glass-stroke);
   backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
 }
-.divider { height: 1px; margin: 22px 18px 0; background: linear-gradient(90deg, transparent, rgba(25, 53, 70, 0.14), transparent); }
-
+/* Connected indicator — moved up from the header; green + blinking only when something is on */
+.section-chip .c-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--offline); flex: none; }
+.section-chip.live { background: rgba(13, 184, 211, 0.16); border-color: rgba(13, 184, 211, 0.35); color: #0A7FA0; }
+.section-chip.live .c-dot { background: var(--online); animation: pulse 2.2s ease-out infinite; }
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(20, 181, 138, 0.4); }
+  75% { box-shadow: 0 0 0 6px rgba(20, 181, 138, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(20, 181, 138, 0); }
+}
 /* status messages — glass dashed */
 .empty {
   border: 1.5px dashed rgba(25, 53, 70, 0.20); border-radius: 18px; padding: 26px 18px; text-align: center;
