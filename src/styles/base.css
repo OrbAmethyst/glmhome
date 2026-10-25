@@ -1,38 +1,27 @@
 /* ============================================================
-   AIRBNB DLS — CONTENT-FIRST FLAT tokens + base
-   Canvas #FFFFFF · Surface #FFFFFF / #F7F7F7 · Rausch #FF385C
-   Text #222222 / #6A6A6A · hairline #DDDDDD · no shadow, no blur
+   ARCTIC DEPTHS — GLASS EDITION tokens + base
    ============================================================ */
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 :root {
-  /* typography */
-  --ink: #222222;          /* Babu — headers, titles, primary body */
-  --ink-2: #6A6A6A;        /* Muted — subtitles, metadata, secondary badges */
-  --ink-3: #A0A0A0;        /* disabled text / placeholders (neutral grey family) */
+  --ink: #193546;          /* primary typography */
+  --ink-2: #526E7F;        /* secondary typography */
+  --ink-3: #94A3B8;        /* disabled text */
+  --bg: #F8FAFC;
+  --grad: linear-gradient(135deg, #0DB8D3 0%, #1B7FDC 100%);
+  --grad-ambient: linear-gradient(135deg, #1B7FDC 0%, #065B98 100%);
+  --glow: rgba(13, 184, 211, 0.25);
+  --online: #14B58A;
+  --offline: #AEBDC9;
 
-  /* surfaces */
-  --bg: #FFFFFF;           /* base canvas */
-  --surface: #FFFFFF;      /* content cards — framed by the hairline below */
-  --surface-2: #F7F7F7;    /* subtle sections / insets behind white cards */
-  --line: #DDDDDD;         /* ultra-fine hairline — inputs & distinct dividers only */
-
-  /* Rausch — exclusively primary CTAs, active states, key highlights */
-  --accent: #FF385C;
-  --accent-soft: rgba(255, 56, 92, 0.10);
-
-  --online: #FF385C;       /* active/live indicator */
-  --offline: #DDDDDD;      /* idle/unknown indicator */
-
-  /* legacy aliases — glass/first-flat era rules resolve to DLS equivalents */
-  --grad: #FF385C;                                 /* was cyan→blue, then orange */
-  --grad-ambient: #FF385C;
-  --glow: rgba(255, 56, 92, 0);
-  --glass-fill: #FFFFFF;
-  --glass-stroke: #DDDDDD;
-  --glass-shadow: 0 0 0 rgba(0, 0, 0, 0);
-  --glass-sheen: inset 0 0 0 rgba(0, 0, 0, 0);
-  --blur: 0px;
+  /* glass system */
+  --glass-hi: rgba(255, 255, 255, 0.74);
+  --glass-lo: rgba(255, 255, 255, 0.40);
+  --glass-fill: linear-gradient(160deg, var(--glass-hi) 0%, var(--glass-lo) 100%);
+  --glass-stroke: rgba(255, 255, 255, 0.66);
+  --glass-sheen: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  --glass-shadow: 0 8px 32px rgba(25, 53, 70, 0.10);
+  --blur: 20px;
 
   /* design width — the app is designed at 375px and never exceeds it */
   --app-w: 375px;
@@ -46,12 +35,17 @@ body {
   font-family: var(--font);
   color: var(--ink);
   overflow-x: hidden;               /* global horizontal containment */
-  background-color: #FFFFFF;        /* white canvas, end of story */
+  background-color: #E7EFF6;
+  background-image:
+    radial-gradient(1000px 700px at 8% -12%, rgba(13, 184, 211, 0.22), transparent 60%),
+    radial-gradient(1100px 900px at 104% 112%, rgba(6, 91, 152, 0.24), transparent 62%),
+    radial-gradient(700px 500px at 85% 8%, rgba(125, 211, 252, 0.20), transparent 60%),
+    linear-gradient(180deg, #EBF3F9 0%, #E2EDF6 100%);
 }
 
 button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; touch-action: manipulation; }
 input { font: inherit; }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+:focus-visible { outline: 2px solid #0DB8D3; outline-offset: 2px; }
 .field:focus-visible, .switch:focus-visible, .hsearch input:focus-visible { outline: none; }
 
 /* ============================================================
@@ -68,6 +62,14 @@ input { font: inherit; }
   user-select: none;
 }
 
+/* fallback: no backdrop-filter support → near-opaque frosts */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .bcard, .tile, .hsearch, .appbar, .sheet, .field, .dd-list, .pop,
+  .section-chip, .empty, .rest-note, .cat-empty, .sheet-ic, .sheet-close {
+    background-color: rgba(255, 255, 255, 0.94) !important;
+  }
+}
+
 /* ============================================================
    SUB-375 COMPACTION — keeps bento math safe on tiny phones
    ============================================================ */
@@ -77,7 +79,7 @@ input { font: inherit; }
   .sec-active .section-head { margin-left: 14px; margin-right: 14px; }
   .pager { margin-left: 14px; margin-right: 14px; padding-left: 0; padding-right: 0; }
   .bento-grid { padding: 2px 14px 4px; gap: 8px; }
-  .bcard { padding: 14px; gap: 8px; }
+  .bcard { padding: 12px; gap: 7px; }
   .brow { gap: 5px; }
   .chip { width: 32px; height: 32px; border-radius: 10px; }
   .bdel { width: 24px; height: 24px; }

@@ -2,18 +2,18 @@
 
 > Handoff marker for resuming development from a fresh chat. Keep this file
 > updated at every milestone. Current checkpoint name:
-> **Airbnb DLS · Content-First Flat (Rausch palette)**
+> **Fold 2.1 · Smooth Scroll & Rail Rework**
 >
-> branch `main` → `github.com/OrbAmethyst/glmhome` · package 3.1.0
+> HEAD `ca307bc` · branch `main` → `github.com/OrbAmethyst/glmhome` · package 2.3.0
 
 ---
 
 ## What this project is
 
 Mobile-first (strict **375px contract**) React 18 + TypeScript + Vite
-smart-home demo rendered in an **Airbnb-DLS Content-First Flat** design system
-(Rausch palette; tokens in `src/styles/base.css`). Pure frontend — every
-behavior is simulated/local **by design**.
+glassmorphism smart-home demo on the "Arctic Depths" palette (tokens in
+`src/styles/base.css`). Pure frontend — every behavior is simulated/local **by
+design**.
 
 ### Hard rules
 - **NO scenes, routines, scheduling, or auth.** No external UI libraries.
@@ -32,58 +32,53 @@ behavior is simulated/local **by design**.
 | --- | --- | --- |
 | `v2.1.0-ui-polish` | `75ccdfb` | collapsing header, avatar row, filled-card chip logos |
 | `v2.2.0-fold2` | `516ec82` | persistence, deep control sheets, room rail + telemetry |
-| `v2.3.0-scroll-polish` | `ca307bc` | telemetry removed, rail reformed, gradual scroll-linked fold, anchor-free smooth scroll |
-| `v3.1.0-rausch` | *(this commit)* | **current** — glassmorphism → Airbnb DLS Content-First Flat (Rausch palette), zero logic changes |
+| `v2.3.0-scroll-polish` | `ca307bc` | **current** — telemetry removed, rail reformed, gradual scroll-linked fold, anchor-free smooth scroll |
 
-## State after Airbnb DLS (what exists now)
+## State after Fold 2.1 (what exists now)
 
-- **Zero logic changes** — every edit in this epoch is CSS (+ presentational
-  copy in `index.html`). Component structure untouched; the mesh layer stays
-  mounted but is `display:none`.
-- **Tokens** (`src/styles/base.css`): canvas `#FFFFFF`, cards `#FFFFFF`
-  (framed by the `#DDDDDD` hairline), secondary surface `#F7F7F7`, Rausch
-  `#FF385C` (CTAs/active/highlights ONLY), text `#222222` / `#6A6A6A`
-  (+ `#A0A0A0` disabled/placeholder), hairline `1px #DDDDDD` (inputs, card
-  frames, distinct dividers), radius 12–16px. Legacy var names (`--grad`,
-  `--glass-*`, `--blur`, `--glow`) aliased to DLS values: `--grad: #FF385C`,
-  `--glass-stroke: #DDDDDD`, transparent shadows, `--blur: 0px`.
-
-- **Zero logic changes** — every edit in both flat epochs is CSS (+ presentational
-  copy in `index.html`: meta description + `.stage-caption` text). Component
-  structure untouched; the mesh layer stays mounted but is `display:none`.
-- **Removed everywhere**: `backdrop-filter`, glass translucency, drop shadows,
-  glows, mesh gradients (blobs + grain hidden), `@supports` glass fallback.
-  Sheen/inset highlights are gone; whitespace replaces dividers
-  (`.pop-sep` = 8px spacer, `dd-item` borders removed).
-- **Accent discipline**: switch ON = Rausch; active room chip = Rausch;
-  pager active dot = Rausch pill; `.cta` = Rausch; online badge/dot = Rausch
-  (blink-animated, no glow ring); focus rings = `outline 2px var(--accent)`;
-  powered hero = **`#F7F7F7` inset** (not Rausch) with a white chip plate;
-  powered non-hero chips = Rausch 10% tint. Green/orange/beige palettes all
-  retired.
-- **Toast** = solid `#222222`, white text, Rausch action `#FF385C`.
-- **Device frame** (≥520px tiers): Ink `#222222` bezel/island/keys; the
-  bezel-less tier uses a `1px #DDDDDD` outline; no shadow stacks.
-- **Appbar**: opaque white `--bg` header, NO `::after` hairline/shadow —
-  content is clipped by the opaque tone itself. `.folded` gate and all
-  `--collapse` math preserved; search = white field with `#DDDDDD` border,
-  focus = Rausch border; avatar = solid Rausch.
-- Everything from Fold 2.1 still applies: no telemetry; static occupied-room
-  rail (27px chips); first-paint-only card animation; gradual scroll-linked
-  fold; `overflow-anchor: none`; drag-snap-hold + 620ms glide.
-- **Control sheet**: `#F7F7F7` inset panels on the white sheet; slider =
-  white track + hairline + solid Rausch 34px thumb (glow layer removed);
-  `dstep-btn` white with Rausch glyphs; `dlvl-btn.active` = solid Rausch;
-  offline = `grayscale(0.85)` only (the `blur(1px)` frost was removed);
-  unreachable banner = `#F7F7F7` inset with Rausch glyph.
-- Cards: white `16px` radius with `1px #DDDDDD` frame, padding bumped
-  13→18px, grid gap 12px; hero min-height 168px; `fresh` = flat Rausch ring
-  (`outline` + `::after` opacity animation — no box-shadow).
+- **Telemetry strip fully removed** (component, `telemetry.css`, `CATEGORY_WATTS`
+  config map, `bolt` glyph out of the font subset).
+- **Room rail**: static strip above the bento — scrolls with the section, no
+  sticky pinning, no `--appbar-h` observer/var anywhere. Chips exist **only for
+  rooms that hold ≥1 paired device** (plus All), each showing `name + count
+  pill`. Sizing deliberately small (27px chips, 11px font, 6px gap) — the 44px
+  touch rule was consciously relaxed for these chips by user request.
+- **No spatial-filter animation**: rail selection swaps cards instantly. The
+  cardIn mount animation plays only on the app's first paint via the
+  `BentoCard anim` prop (900ms gate in `ActiveSection`).
+- **Header fold — scroll-linked & gradual**: `--collapse` (0→1 over ~52px of
+  scroll) is written **directly onto `.appbar`** in the scroll handler — no
+  React re-render per frame. `folded` class gates pointer-events/visibility at
+  k≥1; hairline + shadow fade in with depth via `.appbar::after` opacity var.
+  Returns equally gradually on scroll-up.
+- `.scroll` has **`overflow-anchor: none`** — DO NOT REMOVE. Chrome scroll
+  anchoring compensated the fold's layout-height change by scrolling back,
+  causing a fold/unfold feedback loop (the old "buggy scroll": top oscillated
+  26→0 within one frame; verified by trapping scroll events).
+- **Horizontal bento drag**: scroll-snap is held off for the whole mouse
+  gesture, then the scroller **glides (`behavior:'smooth'`) to the nearest page**
+  on release; snap re-engages via a 620ms `snapTimer`. Click-suppression still
+  guards card taps after drags.
+- **Store** (`src/store/SmartHomeStore.tsx`): localStorage key `msh_devices`;
+  hydration validates shape → malformed falls back to seeds; empty `[]` is
+  respected (user deliberately cleared all). Actions: `toggleDevice` (blocked
+  when offline), `addDevice`, `deleteDevice`, `restoreDevice` (re-inserts at
+  original index), `updateDeviceValue`, `toggleOnlineStatus`, `renameDevice`,
+  `selectedRoom`/`setSelectedRoom` ('all' default). App auto-falls back to
+  'all' when a room filter loses its last device.
+- **DeviceControlSheet**: drag-to-dismiss; per-category controls — brightness
+  slider with scaling amber glow (lights), ±0.5° stepped dial with per-category
+  ranges 16–30°C (climate; fridge 1–7°C), Off/Low/Med/High segments (fans, TV,
+  plug, cleaner); power row + rename + online-sim footer; offline =
+  grayscale+blur overlay, pointer-events none, unreachable banner.
+- **Control-sheet opens from any card tap** outside its buttons (`closest('button')`
+  guard in `BentoCard`).
 
 ## Pitfalls learned (don't rediscover these)
 
-- **Chromium (Arc) composition bugs**: never clip `.htop` with `overflow:hidden`;
-  the margin-based collapse only (no overflow clipping anywhere on the header).
+- **Chromium (Arc) composition bugs**: never clip `.htop` with `overflow:hidden`
+  and never put `backdrop-filter` on `.avatar` (opaque gradient) — renders a
+  stray square patch under the appbar blur. Margin-based collapse only.
 - **`e.currentTarget` is nulled after event dispatch** — never read it inside a
   lazy `setState` updater (crashed the whole React tree once).
 - **Don't `setPointerCapture` on `.bento-scroll`**: with capture, pointerup
@@ -91,17 +86,15 @@ behavior is simulated/local **by design**.
 - Chrome default scroll anchoring fights any JS scroll-linked layout change —
   keep `overflow-anchor: none` on `.scroll`.
 - Verification quirks:
-  - `puppeteer-core` installed `--no-save` (not in package.json) — run scripts
-    with `NODE_PATH=<project>/node_modules`. Chrome binary:
-    `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`
-    (`--headless=new`).
+  - `puppeteer-core` installed `--no-save` (not in package.json). Chrome binary:
+    `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`, must use
+    `--headless=new` (plain `--headless` failed once).
   - Fresh browser profile → empty localStorage → seed devices appear. Storage
     round-trips across reloads within one profile.
-  - When scripting drags, coordinates must stay **inside `.bento-scroll`'s box**.
-  - The dark `#222222` toast (z-60) overlays the open control sheet's footer — an
-    automation click intended for `.foot-btn` can be swallowed by the toast.
-    Wait for the toast to die (4.6s) before clicking footer buttons.
-  - `favicon.ico` 404 in dev console is cosmetic (no favicon asset exists).
+  - When scripting drags, coordinates must stay **inside `.bento-scroll`'s box**
+    (pointerleave ends the gesture & glides to nearest). `.bcard.b-hero` via
+    `querySelector` returns page 1's hero, which is off-scroll to the left on
+    later pages — use the scroller's box rect for drag coords.
   - User's own dev server occupies 5173 — Vite falls back to 5174. Kill after.
 - Git: local user identity; revert via tags above.
 
@@ -111,10 +104,9 @@ behavior is simulated/local **by design**.
 npm run build      # tsc strict + vite build
 npm run dev        # note printed port (5174 if 5173 busy)
 ```
-Puppeteer pass (375×812): horizontal-overflow check (scrollW===375), switch
-toggle, tap opens control sheet, sheet close via scrim, room-chip filter,
-fold at depth + return, pairing flow (tile → sheet → fill → Connect → toast +
-fresh ring), desktop tier at 520×900 (Ink bezel + updated caption).
+Puppeteer pass (1280×860 viewport, app centers in a device frame at x≈452):
+room-rail chips, drag→page glide + back, fold at 26/64px + return at 0,
+tap opens control sheet, offline safeguard, `msh_devices` round-trip.
 
 ## Not done / parking lot
 

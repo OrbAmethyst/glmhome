@@ -2,11 +2,10 @@
 
 A mobile-first Smart Home web application built with **React 18 + TypeScript + Vite**.
 
-Airbnb-DLS **Content-First Flat** look and feel (Complexion Reduction style),
-designed on a strict **375px mobile contract** (responsive on wider screens,
-designed for 375px).
+Glassmorphism look and feel on the **Arctic Depths** palette, designed on a strict
+**375px mobile contract** (responsive on wider screens, designed for 375px).
 
-> Current state: **Content-First Flat** — flat bento bento, gradually folding header,
+> Current state: **Fold 2.1** — glassmorphism bento, gradually folding header,
 > spatial room rail (occupied rooms only), deep device-control sheets,
 > localStorage persistence, smooth scroll physics.
 
@@ -42,51 +41,46 @@ my-sweet-home/
 └── src/
     ├── main.tsx                # React root
     ├── App.tsx                 # Root + provider + screen composition + app-level flows
-    ├── index.css               # CSS barrel — imports the style modules under src/styles/
+    ├── index.css               # full design system (tokens, glass, bento, sheet, tiers)
     ├── types.ts                # Device / ApplianceCategory / ROOMS / CATEGORY_META
     ├── store/
     │   └── SmartHomeStore.tsx  # Context store — devices (persisted), toggle, add, delete,
     │                           #   restore, value/online/rename updates, room filter
     └── components/
-        ├── AppHeader.tsx       # home selector + profile avatar on top, flat search below
+        ├── AppHeader.tsx       # home selector + profile avatar on top, glass search below
         ├── StatusBar.tsx       # fake status bar (device frame tier only)
         ├── Icon.tsx            # Material Symbols Rounded @ wght 300 (FILL 1 when powered)
-        ├── ToggleSwitch.tsx    # solid-orange power switch
+        ├── ToggleSwitch.tsx    # gradient power switch
         ├── BentoCard.tsx       # hero / cell / wide variants + tap-to-open controls
         ├── ActiveSection.tsx   # bento carousel, ResizeObserver width lock, pager, room filter
         ├── RoomFilterRail.tsx  # small chip rail above the bento — one chip per occupied room
         ├── CatalogSection.tsx  # 10 appliance types (labels at regular weight)
         ├── SetupSheet.tsx      # bottom-sheet pairing flow (300ms simulated connect)
         ├── DeviceControlSheet.tsx  # per-category deep controls (drag-to-dismiss sheet)
-        └── Toast.tsx           # solid charcoal toast with Undo (4.6s life)
+        └── Toast.tsx           # dark-glass toast with Undo (4.6s life)
 ```
 
 ---
 
 ## Design system
 
-**Airbnb DLS tokens** (style modules under `src/styles/`):
+**Arctic Depths tokens** (`src/index.css`):
 
-| Token | Value | Use |
-| --- | --- | --- |
-| `--ink` / `--ink-2` / `--ink-3` | `#222222` / `#6A6A6A` / `#A0A0A0` | Babu headers & body / Muted metadata / disabled, placeholders |
-| `--bg` (canvas) | `#FFFFFF` | global background |
-| `--surface` | `#FFFFFF` | content cards — separated by the hairline |
-| `--surface-2` | `#F7F7F7` | subtle sections / insets behind white cards |
-| `--accent` (Rausch) | `#FF385C` | **only** CTAs, active states, key highlights |
-| `--line` (hairline) | `1px solid #DDDDDD` | form inputs, card/tile frames, distinct dividers |
+| Token | Value |
+| --- | --- |
+| `--ink` / `--ink-2` / `--ink-3` | `#193546` / `#526E7F` / `#94A3B8` |
+| Background / border | `#F8FAFC` / `#E2E8F0` |
+| `--grad` | `linear-gradient(135deg, #0DB8D3, #1B7FDC)` |
+| `--grad-ambient` | `linear-gradient(135deg, #1B7FDC, #065B98)` |
+| Online / offline | `#14B58A` / `#AEBDC9` |
 
-**Flat surface rules** — no `backdrop-filter`, no translucency layers, no drop
-shadows, no glows. Cards and tiles are white `16px`-radius surfaces framed by
-the `#DDDDDD` hairline (the tonal trick of a grey canvas is replaced by Airbnb's
-signature bordered rows); secondary surfaces are `#F7F7F7` insets. Rausch is
-reserved: switch ON, active room chip, pager pill, CTA, online badge, focus
-rings. Whitespace — not dividers — separates content. The legacy glass-era
-variable names are aliased to DLS equivalents so the modules stay stable.
-`prefers-reduced-motion` stills all animation.
+**Glass system** — `.glass` fills with a translucent white gradient, blurred +
+saturated via `backdrop-filter`, sheen highlight, 1px light stroke. The living
+backdrop (5 drifting gradient blobs + film grain) exists so the blur has content
+to refract. A `@supports` fallback provides opaque white when `backdrop-filter`
+is unavailable, and `prefers-reduced-motion` stills all ambient animation.
 
-**Typography** — Inter 400–800 only. Headers are heavy (700–800) charcoal;
-body text is grey `#52555A`. Catalog tile names use regular (400) weight.
+**Typography** — Inter 400–800 only. Catalog tile names use regular (400) weight.
 Icons are Google **Material Symbols Rounded** at `wght 300`; powered devices
 switch the FILL axis to 1.
 
@@ -98,19 +92,17 @@ switch the FILL axis to 1.
   (percentage sizing inside a mandatory-snap scroller is what historically broke
   the contract past 4 devices — pixels never do).
 - Grids use `minmax(0, 1fr)`; flex text rows carry `min-width: 0`.
-- Display tiers: full-bleed ≤520px → bezel-less hairline outline (≥520px, short
-  window) → solid Ink `#222222` device frame with island + side keys
-  (≥520px and ≥680px).
+- Display tiers: full-bleed ≤520px → bezel-less glass card (≥520px, short
+  window) → full device frame with island + side keys (≥520px and ≥680px).
 - Compaction tier ≤359px: 14px gutters, 32px icon chips, 40px switches.
 
 ---
 
 ## Behavior contract (Fold 2)
 
-- **Bento**: 4 devices per page — first card is the hero (full-width, subtle
-  `#F7F7F7` inset when powered), last card is wide; pages snap horizontally;
-  the pager's dots morph into a Rausch pill for the active page. Mouse
-  drag-to-scroll
+- **Bento**: 4 devices per page — first card is the hero (full-width, tinted
+  glass when powered), last card is wide; pages snap horizontally; the pager's
+  dots morph into a gradient pill for the active page. Mouse drag-to-scroll
   holds scroll-snap off for the whole gesture and glides smoothly to the
   nearest page on release — snap and scrollLeft never fight; click suppression
   keeps drags from opening sheets.
@@ -126,18 +118,16 @@ switch the FILL axis to 1.
   and returns just as gradually when scrolling back up. The appbar disables
   Chrome scroll anchoring so the fold never fights the scroll.
 - **Device control sheet**: tapping a card (outside its buttons) opens the
-  drag-to-dismiss controls sheet — brightness slider on a flat track
+  drag-to-dismiss controls sheet — brightness slider with scaling ambient glow
   (lights), ±0.5° stepper dial with category ranges (climate), or Off/Low/Med/High
   segmented selector (fans, TV, plug, cleaner). Power row + rename + online
-  simulation in the footer. When a device is offline, controls desaturate with
-  an "unreachable" banner.
+  simulation in the footer. When a device is offline, controls sit under a
+  desaturating overlay with an "unreachable" banner, and the card shadow fades.
 - **Pairing**: tap a catalog tile → bottom sheet (drag-to-dismiss at 100px) →
   name auto-prefills from the selected room until edited → Connect runs a
   300ms simulated connect → sheet closes, query clears, bento snaps to page 0,
-  the new card pulses with a flat orange ring, view scrolls to Active Glance,
-  toast confirms.
-- **Delete**: 210ms exit animation → solid Babu `#222222` toast with **Undo**
-  (4.6s life)
+  the new card pulses with a ring, view scrolls to Active Glance, toast confirms.
+- **Delete**: 210ms exit animation → dark-glass toast with **Undo** (4.6s life)
   that restores the device at its original index.
 - **Search**: live-filters both the bento and the catalog, with dedicated
   empty/no-match states.
