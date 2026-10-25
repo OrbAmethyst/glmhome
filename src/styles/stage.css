@@ -22,11 +22,8 @@
   .device-col { width: auto; }
   .phone { height: calc(100dvh - 48px); min-height: 460px; }
   .screen {
-    border-radius: 26px;
-    border: 1px solid rgba(255, 255, 255, 0.65);
-    box-shadow:
-      0 40px 90px -32px rgba(8, 27, 40, 0.45),
-      0 0 70px -18px rgba(13, 184, 211, 0.30);
+    border-radius: 22px;
+    border: 1px solid var(--line);
   }
 }
 
@@ -35,20 +32,16 @@
   .stage { padding: 30px 24px 26px; }
   .phone {
     height: min(812px, calc(100dvh - 104px)); min-height: 580px;
-    background: #0C1F2C; border-radius: 52px; padding: 10px;
-    box-shadow:
-      0 60px 120px -32px rgba(8, 27, 40, 0.55),
-      0 24px 48px -28px rgba(8, 27, 40, 0.45),
-      0 0 90px -20px rgba(13, 184, 211, 0.35),
-      inset 0 0 0 2px rgba(255, 255, 255, 0.07);
+    background: #222222; border-radius: 46px; padding: 10px;
+    box-shadow: none;
   }
-  .phone::before, .phone::after { content: ''; position: absolute; background: #0C1F2C; border-radius: 3px; }
+  .phone::before, .phone::after { content: ''; position: absolute; background: #222222; border-radius: 3px; }
   .phone::before { right: -2.5px; top: 168px; width: 3px; height: 68px; }
-  .phone::after  { left: -2.5px;  top: 138px; width: 3px; height: 42px; box-shadow: 0 56px 0 #0C1F2C; }
+  .phone::after  { left: -2.5px;  top: 138px; width: 3px; height: 42px; box-shadow: 0 56px 0 #222222; }
   .screen { border-radius: 43px; border: none; }
   .stage-caption {
     display: block; margin-top: 20px; font-size: 10.5px; font-weight: 700;
-    letter-spacing: 0.26em; text-transform: uppercase; color: #7E96A8;
+    letter-spacing: 0.26em; text-transform: uppercase; color: var(--ink-2);
   }
 }
 
@@ -65,49 +58,12 @@
 @media (min-width: 520px) and (min-height: 680px) {
   .statusbar { display: flex; align-items: center; justify-content: space-between; flex: none; height: 50px; padding: 8px 26px 0; position: relative; z-index: 2; }
   .sb-time { font-size: 13.5px; font-weight: 600; letter-spacing: 0.01em; }
-  .sb-island { position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 100px; height: 26px; border-radius: 20px; background: #0C1F2C; }
+  .sb-island { position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 100px; height: 26px; border-radius: 20px; background: #222222; }
   .sb-icons { display: flex; align-items: center; gap: 6px; color: var(--ink); }
 }
 
 /* ============================================================
-   LIVING COLOR MESH — the layer every glass surface refracts
+   COLOR MESH — retired. The mesh layer stays mounted (zero markup
+   churn) but the flat system renders on a plain #F5F5F5 canvas.
    ============================================================ */
-.mesh { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
-.blob {
-  position: absolute; border-radius: 50%;
-  will-change: transform;
-}
-.blob-1 {
-  width: 320px; height: 320px; top: -90px; left: -80px;
-  background: radial-gradient(circle at 32% 32%, rgba(13, 184, 211, 0.55), rgba(13, 184, 211, 0) 68%);
-  animation: drift1 26s ease-in-out infinite alternate;
-}
-.blob-2 {
-  width: 380px; height: 380px; top: 22%; right: -150px;
-  background: radial-gradient(circle at 60% 40%, rgba(27, 127, 220, 0.42), rgba(27, 127, 220, 0) 68%);
-  animation: drift2 32s ease-in-out infinite alternate;
-}
-.blob-3 {
-  width: 340px; height: 340px; bottom: -130px; left: -110px;
-  background: radial-gradient(circle at 40% 60%, rgba(6, 91, 152, 0.36), rgba(6, 91, 152, 0) 70%);
-  animation: drift3 38s ease-in-out infinite alternate;
-}
-.blob-4 {
-  width: 240px; height: 240px; bottom: 18%; right: -60px;
-  background: radial-gradient(circle at 50% 50%, rgba(20, 181, 138, 0.20), rgba(20, 181, 138, 0) 70%);
-  animation: drift1 29s ease-in-out infinite alternate-reverse;
-}
-.blob-5 {
-  width: 220px; height: 220px; top: 4%; right: 12%;
-  background: radial-gradient(circle at 50% 50%, rgba(125, 211, 252, 0.38), rgba(125, 211, 252, 0) 70%);
-  animation: drift2 24s ease-in-out infinite alternate-reverse;
-}
-@keyframes drift1 { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(56px, 44px) scale(1.18); } }
-@keyframes drift2 { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(-64px, 60px) scale(0.92); } }
-@keyframes drift3 { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(70px, -50px) scale(1.14); } }
-
-/* fine grain so the frost reads as material, not flat transparency */
-.mesh::after {
-  content: ''; position: absolute; inset: 0; opacity: 0.09;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
-}
+.mesh, .mesh .blob, .mesh::after { display: none; }

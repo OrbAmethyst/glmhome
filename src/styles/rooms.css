@@ -4,7 +4,7 @@
    ============================================================ */
 .room-rail {
   display: flex; align-items: center; gap: 6px;
-  padding: 0 18px 2px; margin: 2px 0 8px;
+  padding: 0 20px 2px; margin: 2px 0 10px;
   overflow-x: auto; scrollbar-width: none;
   overscroll-behavior-x: contain;
 }
@@ -16,26 +16,21 @@
   border-radius: 999px;
   font-size: 11px; font-weight: 600; white-space: nowrap;
   color: var(--ink-2);
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-stroke);
-  box-shadow: var(--glass-shadow);
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  background: var(--surface-2);
+  transition: background 0.15s ease, color 0.15s ease;
 }
-@media (hover: hover) { .rchip:hover { background: rgba(255, 255, 255, 0.72); } }
+@media (hover: hover) { .rchip:hover { background: #EEEEEE; } }   /* hover = a derived neutral between #F7F7F7 and #DDDDDD */
 
 .rchip-count {
   font-size: 9.5px; font-weight: 700; font-variant-numeric: tabular-nums;
   padding: 1px 6px; border-radius: 999px;
-  background: rgba(25, 53, 70, 0.08);
+  background: var(--surface);
   color: var(--ink-2);
 }
 
-/* active — illuminated cyan glass with inner highlight */
+/* active — solid orange, the only prominent accent on the rail */
 .rchip.active {
   color: #FFFFFF;
-  background: linear-gradient(135deg, rgba(13, 184, 211, 0.92), rgba(27, 127, 220, 0.92));
-  border-color: rgba(255, 255, 255, 0.42);
-  box-shadow: 0 5px 14px -6px rgba(13, 120, 190, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  background: var(--accent);
 }
-.rchip.active .rchip-count { color: #EAF9FF; background: rgba(255, 255, 255, 0.22); }
+.rchip.active .rchip-count { color: #FFFFFF; background: rgba(255, 255, 255, 0.22); }
